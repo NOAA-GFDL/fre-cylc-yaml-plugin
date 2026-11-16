@@ -1,0 +1,38 @@
+#!jinja2
+
+# DEBUG: is postprocess here? {{ postprocess is defined }}
+#
+{% if STALL_TIMEOUT is not defined %}
+    {% set STALL_TIMEOUT = "PT0S" %}
+{% endif %}
+
+##set the good stuff
+{% if properties is defined %}
+    {% set INPUT1 =  properties.settings.input1 %}
+{% else  %}
+    {% set INPUT1 = "DID NOT EXTRACT, whomp whomp" %}
+{% endif %}
+
+{{ assert(INPUT1 is defined and INPUT != "DID NOT EXTRACT, whomp whomp", "Error: YAML VALUE NOT READ/PARSED CORRECTLY!") }}
+
+[meta]
+    title = Simple Test Workflow
+
+[scheduler]
+    [[events]]
+        stall timeout = PT0S
+
+[scheduling]
+    [[graph]]
+        R1 = task_a
+
+[runtime]
+    [[task_a]]
+        # Accessing variables from the YAML file
+        # Extracting/saving in 2 different ways:
+        # 1. save to a variable and use variable
+        # 2. parse directly from yaml file
+        script = """
+            echo {{ INPUT1 }}
+            echo {{ properties.settings.input2 }}
+        """

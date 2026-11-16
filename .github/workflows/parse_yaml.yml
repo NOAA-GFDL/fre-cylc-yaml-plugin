@@ -1,0 +1,71 @@
+name: pre-configure-plugin check
+
+on:
+  pull_request:
+    branches:
+  push:
+    branches:
+      - main
+
+# cancel running jobs if theres a newer push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  create_condaenv:
+    name: idk
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/noaa-gfdl/fre-cli:miniconda24_gcc14_v2
+      options: "--privileged --cap-add=sys_admin --cap-add=mknod --device=/dev/fuse --security-opt seccomp=unconfined --security-opt label=disable --security-opt apparmor=unconfined" # needed for podman
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '>=3.11'
+
+      - name: Configure Conda
+        run: |
+          echo "removing conda default channels, appending open-source ones"
+          conda config --append channels conda-forge
+          conda config --remove channels defaults
+
+          echo "setting strict channel priority"
+          conda config --set channel_priority strict
+
+          echo "printing conda config just in case"
+          conda config --show
+
+      - name: Update Conda
+        run: |
+          echo "updating conda"
+          conda update -y conda
+
+      - name: Create cylc environment
+        run: |
+          conda create -n cylc-plugin-test
+          conda activate cylc-plugin-test
+          conda install -y conda-forge::python>=3.11
+          conda install -y conda-forge::cylc-flow>=8.4
+          conda install -y conda-forge::cylc-rose
+
+      - name: Install the pre-configure plugin
+        run: | 
+          pip install .
+
+          # see if plugin was installed 
+          cylc version --long
+
+      - name: Run through cylc
+        run: |
+          cd test
+          cylc install --workflow-name=ci-plugin-test --no-run-name
+          cylc validate ci-plugin-test
+          cd -
+
+      - name: View rendered flow.cylc
+        run: |
+          cylc view -jv ci-plugin-test 
