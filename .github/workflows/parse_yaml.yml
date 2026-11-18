@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/noaa-gfdl/fre-cli:miniconda24_gcc14_v2
-      options: "--privileged --cap-add=sys_admin --cap-add=mknod --device=/dev/fuse --security-opt seccomp=unconfined --security-opt label=disable --security-opt apparmor=unconfined" # needed for podman
+#      options: "--privileged --cap-add=sys_admin --cap-add=mknod --device=/dev/fuse --security-opt seccomp=unconfined --security-opt label=disable --security-opt apparmor=unconfined" # needed for podman
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,7 @@ jobs:
           conda activate cylc-plugin-test
           conda install -y conda-forge::python>=3.11
           conda install -y conda-forge::cylc-flow>=8.4
-          conda install -y conda-forge::cylc-rose
+          conda install -y conda-forge::pyyaml
 
       - name: Install the pre-configure plugin
         run: | 
@@ -64,7 +64,6 @@ jobs:
           cd test
           cylc install --workflow-name=ci-plugin-test --no-run-name
           cylc validate ci-plugin-test
-          cd -
 
       - name: View rendered flow.cylc
         run: |

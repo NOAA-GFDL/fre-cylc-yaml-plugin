@@ -1,7 +1,5 @@
 #!jinja2
 
-# DEBUG: is postprocess here? {{ postprocess is defined }}
-#
 {% if STALL_TIMEOUT is not defined %}
     {% set STALL_TIMEOUT = "PT0S" %}
 {% endif %}
@@ -13,7 +11,7 @@
     {% set INPUT1 = "DID NOT EXTRACT, whomp whomp" %}
 {% endif %}
 
-{{ assert(INPUT1 is defined and INPUT != "DID NOT EXTRACT, whomp whomp", "Error: YAML VALUE NOT READ/PARSED CORRECTLY!") }}
+{{ assert(INPUT1 is defined and INPUT1 != "DID NOT EXTRACT, whomp whomp", "Error: YAML VALUE NOT READ/PARSED CORRECTLY!") }}
 
 [meta]
     title = Simple Test Workflow
