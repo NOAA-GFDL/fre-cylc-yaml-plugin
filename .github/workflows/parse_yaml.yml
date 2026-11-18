@@ -63,7 +63,7 @@ jobs:
         run: |
           cd test
           cylc install --workflow-name=ci-plugin-test --no-run-name
-          cylc validate ci-plugin-test
+          cylc validate --verbose ci-plugin-test
 
       - name: View rendered flow.cylc
         run: |
