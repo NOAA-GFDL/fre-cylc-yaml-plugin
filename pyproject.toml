@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "plugin_test"
 version = "0.1.0"
+dependencies = ["cylc-flow", "PyYAML"]
 
 [project.entry-points."cylc.pre_configure"]
 preconfigure_plugin = "read_yaml:pre_configure"

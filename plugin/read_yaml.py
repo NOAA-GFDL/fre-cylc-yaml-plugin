@@ -1,8 +1,13 @@
 from cylc.flow import LOG
 from pathlib import Path
 import yaml
+#import logging
+#
+## set up logging
+#logging.basicConfig(level=logging.INFO)
+#logger = logging.getLogger(__name__)
 
-def pre_configure(srcdir=None, opts=None, rundir=None): #, jinja2_vars=None):
+def pre_configure(srcdir=None, opts=None, rundir=None):
     LOG.info(" *** CALLING READ_YAML PLUGIN *** ")
 
     yml_info = {}
@@ -14,26 +19,28 @@ def pre_configure(srcdir=None, opts=None, rundir=None): #, jinja2_vars=None):
         if yf.name != "environment.yaml":
             yamls.append(yf)
 
-    if len(yamls) != 1:
+    if not yamls:
+        LOG.warning("NO YAML DETECTED.")
+        return {}
+    if len(yamls) > 1:
         raise ValueError("Too many YAML configs in cylc-src dir- don't know which is experiment yaml")
 
-    print(yamls[0])
+    LOG.info(yamls[0])
     yaml_file = yamls[0]
 
     # Load yaml file 
-    if yaml_file:
-        yf = yaml_file
-        with open(yf, 'r') as f:
-            yml_info = yaml.safe_load(f)
+    with open(yaml_file, 'r') as f:
+        yml_info = yaml.safe_load(f)
 
-    LOG.info(yml_info)
-    if yml_info:
-        LOG.info(f"YAML FILE {yaml_file} DETECTED")
-        return {'template_variables': yml_info,
-                'templating_detected': 'jinja2'}
-    else:
-        LOG.info("NO YAML DETECTED")
+    if yml_info is None:
+        LOG.warning("YAML IS EMPTY.")
         return {}
+    if yml_info is not None and not isinstance(yml_info, dict):
+        raise ValueError("Expected dictionary mapping in YAML file")
+
+    LOG.info(f"YAML FILE {yaml_file} DETECTED")
+    return {'template_variables': yml_info,
+            'templating_detected': 'jinja2'}
 
 ####another thing to try
 #    # inject/mutate jinja2_vars directly 
