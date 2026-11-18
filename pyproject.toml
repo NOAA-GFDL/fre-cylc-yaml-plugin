@@ -8,7 +8,7 @@ name = "plugin_test"
 version = "0.1.0"
 
 [project.entry-points."cylc.pre_configure"]
-my_plugin = "read_yaml:pre_configure"
+preconfigure_plugin = "read_yaml:pre_configure"
 
 [tool.setuptools]
 # This tells Python where to find your code
